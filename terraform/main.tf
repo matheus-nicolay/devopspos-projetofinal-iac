@@ -103,7 +103,8 @@ resource "azurerm_linux_virtual_machine" "student-vm" {
   resource_group_name        = azurerm_resource_group.student-rg.name
   network_interface_ids      = [azurerm_network_interface.student-nic.id]
   size                       = "Standard_B1s"
-  allow_extension_operations = true
+  allow_extension_operations = false
+  provision_vm_agent         = false
 
   os_disk {
     name                 = "myOsDisk"
