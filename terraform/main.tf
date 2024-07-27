@@ -104,7 +104,7 @@ resource "azurerm_linux_virtual_machine" "student-vm" {
   network_interface_ids      = [azurerm_network_interface.student-nic.id]
   size                       = "Standard_B1s"
   allow_extension_operations = false
-  provision_vm_agent         = false
+  provision_vm_agent         = true
 
   os_disk {
     name                 = "myOsDisk"
