@@ -44,6 +44,7 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+        TF_VAR_vm_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
       run: terraform init
 
     - name: Terraform Plan
@@ -53,7 +54,8 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-      run: terraform plan -var vm_admin_password=${{ secrets.VM_ADMIN_PASSWORD }} -out=tfplan
+        TF_VAR_vm_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+      run: terraform plan -out=tfplan
 
     - name: Terraform Apply
       working-directory: ./terraform
@@ -62,7 +64,8 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-      run: terraform apply -var vm_admin_password=${{ secrets.VM_ADMIN_PASSWORD }} -input=false tfplan
+        TF_VAR_vm_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+      run: terraform apply -input=false tfplan
 
     - name: Display Ansible Inventory
       run: cat ./ansible/inventory.ini
@@ -71,4 +74,6 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y ansible
 
     - name: Run Ansible Playbook
-      run: ansible-playbook -i ./ansible/ansible_inventory.ini --extra-vars "ansible_password=${{ secrets.VM_ADMIN_PASSWORD }}" ./ansible/ansible-playbook.yml
+      env:
+        ANSIBLE_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
+      run: ansible-playbook -i ./ansible/ansible_inventory.ini -e ansible_password='{{ lookup("env", "ANSIBLE_PASSWORD") }}' ./ansible/ansible-playbook.yml
