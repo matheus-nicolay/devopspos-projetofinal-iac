@@ -15,20 +15,20 @@ variable "tenant_id" {
 }
 
 variable "resource_group_location" {
-  type        = string
-  default     = "eastus"
+  type    = string
+  default = "eastus"
 }
 
 variable "resource_group_name_prefix" {
-  type        = string
-  default     = "student-rg"
+  type    = string
+  default = "student-rg"
 }
 
 variable "username" {
-  type        = string
-  default     = "azureuser"
+  type    = string
+  default = "azureuser"
 }
 
-variable "vm_admin_password"{
-  type        = string
+variable "vm_admin_password" {
+  type = string
 }

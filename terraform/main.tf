@@ -25,10 +25,10 @@ resource "azurerm_subnet" "student-subnet" {
 
 # Cria IP publicos
 resource "azurerm_public_ip" "student-pip" {
-   name                = "student-pip"
-   location            = azurerm_resource_group.student-rg.location
-   resource_group_name = azurerm_resource_group.student-rg.name
-   allocation_method   = "Dynamic"
+  name                = "student-pip"
+  location            = azurerm_resource_group.student-rg.location
+  resource_group_name = azurerm_resource_group.student-rg.name
+  allocation_method   = "Dynamic"
 }
 
 # Cria SG e regras
