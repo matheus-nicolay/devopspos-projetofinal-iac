@@ -23,6 +23,29 @@ resource "azurerm_subnet" "student-subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+resource "azurerm_network_security_group" "student-subnetsg" {
+  name                = "student-subnetsg"
+  location            = azurerm_resource_group.student-rg.location
+  resource_group_name = azurerm_resource_group.student-rg.name
+
+  security_rule {
+    name                       = "Allow Outbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "student-subnetassociation" {
+  subnet_id                 = azurerm_subnet.student-subnet.id
+  network_security_group_id = azurerm_network_security_group.student-subnetsg.id
+}
+
 # Cria IP publicos
 resource "azurerm_public_ip" "student-pip" {
   name                = "student-pip"
@@ -33,6 +56,7 @@ resource "azurerm_public_ip" "student-pip" {
 
 # Cria SG e regras
 resource "azurerm_network_security_group" "student-nsg" {
+  #checkov:skip=CKV_AZURE_10:Necessário para aplicar o Ansible a partir da pipeline
   name                = "student-nsg"
   location            = azurerm_resource_group.student-rg.location
   resource_group_name = azurerm_resource_group.student-rg.name
@@ -48,23 +72,11 @@ resource "azurerm_network_security_group" "student-nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
-  security_rule {
-    name                       = "HTTP"
-    priority                   = 200
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
 }
 
 # Cria NIC
 resource "azurerm_network_interface" "student-nic" {
+  #checkov:skip=CKV_AZURE_119:É necessário possuir IP público para acesso SSH do Ansible
   name                = "student-nic"
   location            = azurerm_resource_group.student-rg.location
   resource_group_name = azurerm_resource_group.student-rg.name
@@ -85,11 +97,13 @@ resource "azurerm_network_interface_security_group_association" "nicNSG" {
 
 # Cria a maquina virtual
 resource "azurerm_linux_virtual_machine" "student-vm" {
+  #checkov:skip=CKV_AZURE_178:Foi escolhido usuário e senha como forma de autenticação nesse projeto
   name                  = "student-vm"
   location              = azurerm_resource_group.student-rg.location
   resource_group_name   = azurerm_resource_group.student-rg.name
   network_interface_ids = [azurerm_network_interface.student-nic.id]
   size                  = "Standard_B1s"
+  allow_extension_operations = true
 
   os_disk {
     name                 = "myOsDisk"
