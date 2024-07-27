@@ -1,0 +1,57 @@
+name: 'Terraform Azure Deployment'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.2.0
+
+    - name: Terraform Format Check
+      working-directory: ./terraform
+      run: terraform fmt -check -recursive
+
+    - name: Install Checkov
+      run: pip install checkov
+
+    - name: Run Checkov
+      working-directory: ./terraform
+      run: checkov -d .
+
+    - name: Authenticate to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
+
+    - name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan -var vm_admin_password=${{ secrets.vm_admin_password }} -out=tfplan
+
+    - name: Terraform Apply
+      working-directory: ./terraform
+      run: terraform apply -var vm_admin_password=${{ secrets.vm_admin_password }} -input=false tfplan
+
+    - name: Display Ansible Inventory
+      run: cat ./ansible/inventory.ini
+
+    - name: Install Ansible
+      run: sudo apt-get update && sudo apt-get install -y ansible
+
+    - name: Run Ansible Playbook
+      run: ansible-playbook -i ./ansible/ansible_inventory.ini --extra-vars "ansible_password=${{ secrets.vm_admin_password }}" ./ansible/ansible-playbook.yml
