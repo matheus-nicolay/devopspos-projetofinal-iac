@@ -85,7 +85,7 @@ jobs:
     - name: Run Ansible Playbook
       env:
         ANSIBLE_HOST_KEY_CHECKING: 'False'
-      run: echo ./ansible/inventory.ini ; ansible-playbook -i ./ansible/inventory.ini ./ansible/ansible-playbook.yaml
+      run: cat ./ansible/inventory.ini ; ansible-playbook -i ./ansible/inventory.ini ./ansible/ansible-playbook.yaml
 
     - name: Terraform Destroy
       if: failure() || always()
