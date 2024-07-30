@@ -84,9 +84,8 @@ jobs:
 
     - name: Run Ansible Playbook
       env:
-        ANSIBLE_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
         ANSIBLE_HOST_KEY_CHECKING: 'False'
-      run: ansible-playbook -i ./ansible/inventory.ini -e ansible_ssh_pass='{{ lookup("env", "ANSIBLE_PASSWORD") }}' ./ansible/ansible-playbook.yaml
+      run: ansible-playbook -i ./ansible/inventory.ini -e ansible_ssh_pass=${{ secrets.VM_ADMIN_PASSWORD }}' ./ansible/ansible-playbook.yaml
 
     - name: Terraform Destroy
       if: failure() || always()
