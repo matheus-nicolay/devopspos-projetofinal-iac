@@ -148,7 +148,7 @@ resource "azurerm_linux_virtual_machine" "student-vm" {
 resource "local_file" "ansible_inventory" {
   content  = <<EOF
 [all]
-${azurerm_linux_virtual_machine.student-vm.name} ansible_host=${azurerm_linux_virtual_machine.student-vm.public_ip_address}
+${azurerm_linux_virtual_machine.student-vm.name} ansible_host=${azurerm_linux_virtual_machine.student-vm.public_ip_address} ansible_user=var.username ansible_password=var.vm_admin_password
 EOF
   filename = "../ansible/inventory.ini"
 
