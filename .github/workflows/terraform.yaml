@@ -85,4 +85,4 @@ jobs:
     - name: Run Ansible Playbook
       env:
         ANSIBLE_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
-      run: ansible-playbook -i ./ansible/inventory.ini -e ansible_password='{{ lookup("env", "ANSIBLE_PASSWORD") }}' ./ansible/ansible-playbook.yml
+      run: ansible-playbook -i ./ansible/inventory.ini -e ansible_password='{{ lookup("env", "ANSIBLE_PASSWORD") }}' ./ansible/ansible-playbook.yaml
