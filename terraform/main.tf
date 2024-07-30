@@ -137,7 +137,7 @@ resource "local_file" "ansible_inventory" {
 [all]
 ${azurerm_linux_virtual_machine.student-vm.name} ansible_host=${azurerm_linux_virtual_machine.student-vm.public_ip_address}
 EOF
-  filename = "../ansible/ansible_inventory.ini"
+  filename = "../ansible/inventory.ini"
 
   depends_on = [azurerm_linux_virtual_machine.student-vm]
 }
