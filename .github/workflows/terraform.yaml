@@ -86,4 +86,4 @@ jobs:
       env:
         ANSIBLE_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
         ANSIBLE_HOST_KEY_CHECKING: 'False'
-      run: ansible-playbook -i ./ansible/inventory.ini -e ansible_password='{{ lookup("env", "ANSIBLE_PASSWORD") }}' ./ansible/ansible-playbook.yaml
+      run: echo $ANSIBLE_PASSWORD ; ansible-playbook -i ./ansible/inventory.ini -e ansible_ssh_pass='{{ lookup("env", "ANSIBLE_PASSWORD") }}' ./ansible/ansible-playbook.yaml
