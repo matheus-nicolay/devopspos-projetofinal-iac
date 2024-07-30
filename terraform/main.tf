@@ -13,6 +13,8 @@ resource "azurerm_virtual_network" "student-vnet" {
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.student-rg.location
   resource_group_name = azurerm_resource_group.student-rg.name
+
+  depends_on = [ azurerm_resource_group.student-rg ] 
 }
 
 # Cria subnet
@@ -22,7 +24,7 @@ resource "azurerm_subnet" "student-subnet" {
   virtual_network_name = azurerm_virtual_network.student-vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 
-  depends_on = [azurerm_virtual_network.student-vnet, azurerm_resource_group.student-rg]
+  depends_on = [azurerm_virtual_network.student-vnet, azurerm_resource_group.student-rg ]
 }
 
 resource "azurerm_network_security_group" "student-subnetsg" {
@@ -54,11 +56,15 @@ resource "azurerm_network_security_group" "student-subnetsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  depends_on = [ azurerm_resource_group.student-rg ]
 }
 
 resource "azurerm_subnet_network_security_group_association" "student-subnetassociation" {
   subnet_id                 = azurerm_subnet.student-subnet.id
   network_security_group_id = azurerm_network_security_group.student-subnetsg.id
+
+  depends_on = [ azurerm_subnet.student-subnet, azurerm_network_security_group.student-subnetsg ]
 }
 
 # Cria IP publicos
@@ -67,6 +73,8 @@ resource "azurerm_public_ip" "student-pip" {
   location            = azurerm_resource_group.student-rg.location
   resource_group_name = azurerm_resource_group.student-rg.name
   allocation_method   = "Dynamic"
+
+  depends_on = [ azurerm_resource_group.student-rg ]
 }
 
 # Cria SG e regras
@@ -87,6 +95,8 @@ resource "azurerm_network_security_group" "student-nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  depends_on = [ azurerm_resource_group.student-rg ]
 }
 
 # Cria NIC
@@ -103,13 +113,15 @@ resource "azurerm_network_interface" "student-nic" {
     public_ip_address_id          = azurerm_public_ip.student-pip.id
   }
 
-  depends_on = [azurerm_subnet.student-subnet, azurerm_public_ip.student-pip]
+  depends_on = [ azurerm_resource_group.student-rg, azurerm_subnet.student-subnet, azurerm_public_ip.student-pip ]
 }
 
 # Conecta SG com nic
 resource "azurerm_network_interface_security_group_association" "nicNSG" {
   network_interface_id      = azurerm_network_interface.student-nic.id
   network_security_group_id = azurerm_network_security_group.student-nsg.id
+
+  depends_on = [ azurerm_network_interface.student-nic, azurerm_network_security_group.student-nsg ]
 }
 
 # Cria a maquina virtual
@@ -143,6 +155,8 @@ resource "azurerm_linux_virtual_machine" "student-vm" {
   admin_username = var.username
 
   admin_password = var.vm_admin_password
+
+  depends_on = [ azurerm_resource_group.student-rg, azurerm_network_interface.student-nic ]
 }
 
 resource "local_file" "ansible_inventory" {
