@@ -26,6 +26,7 @@ resource "azurerm_subnet" "student-subnet" {
 }
 
 resource "azurerm_network_security_group" "student-subnetsg" {
+  #checkov:skip=CKV_AZURE_10:Necessário para aplicar o Ansible a partir da pipeline
   name                = "student-subnetsg"
   location            = azurerm_resource_group.student-rg.location
   resource_group_name = azurerm_resource_group.student-rg.name
@@ -38,6 +39,18 @@ resource "azurerm_network_security_group" "student-subnetsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
