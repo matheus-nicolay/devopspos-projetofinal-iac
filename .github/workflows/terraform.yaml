@@ -30,9 +30,20 @@ jobs:
       working-directory: ./terraform
       run: checkov -d .
 
+    - name: Set up Azure authentication
+      run: |
+        echo "${{ secrets.AZURE_AD_CLIENT_ID }}" > client_id
+        echo "${{ secrets.AZURE_AD_CLIENT_SECRET }}" > client_secret
+        echo "${{ secrets.AZURE_SUBSCRIPTION_ID }}" > subscription_id
+        echo "${{ secrets.AZURE_AD_TENANT_ID }}" > tenant_id
+
     - name: Terraform Init
       working-directory: ./terraform
       env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
         TF_VAR_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
         TF_VAR_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
         TF_VAR_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
