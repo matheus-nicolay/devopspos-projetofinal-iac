@@ -85,19 +85,4 @@ jobs:
     - name: Run Ansible Playbook
       env:
         ANSIBLE_HOST_KEY_CHECKING: 'False'
-      run: cat ./ansible/inventory.ini ; ansible-playbook -i ./ansible/inventory.ini ./ansible/ansible-playbook.yaml
-
-    - name: Terraform Destroy
-      if: failure() || always()
-      working-directory: ./terraform
-      env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-        TF_VAR_client_id: ${{ secrets.AZURE_AD_CLIENT_ID }}
-        TF_VAR_client_secret: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        TF_VAR_tenant_id: ${{ secrets.AZURE_AD_TENANT_ID }}
-        TF_VAR_vm_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
-      run: terraform destroy -auto-approve
+      run: ansible-playbook -i ./ansible/inventory.ini ./ansible/ansible-playbook.yaml
